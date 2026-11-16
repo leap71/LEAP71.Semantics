@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+
+    <AssemblyName>Leap71.Semantics</AssemblyName>
+    <RootNamespace>Leap71.Semantics</RootNamespace>
+
+    <PackageId>LEAP71.Semantics</PackageId>
+    <Authors>LEAP 71</Authors>
+    <Company>LEAP 71</Company>
+    <Description>Minimal semantic marker interfaces shared across LEAP 71 .NET projects.</Description>
+    <PackageTags>LEAP71;semantics;markers;quantities;identities</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/LEAP71/LEAP71.Semantics</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <IsPackable>true</IsPackable>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+</Project>

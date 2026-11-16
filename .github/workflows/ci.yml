@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore src/Leap71.Semantics/Leap71.Semantics.csproj
+
+      - name: Build
+        run: dotnet build src/Leap71.Semantics/Leap71.Semantics.csproj --configuration Release --no-restore
+
+      - name: Pack smoke test
+        run: dotnet pack src/Leap71.Semantics/Leap71.Semantics.csproj --configuration Release --no-build --output artifacts /p:PackageVersion=0.0.0-ci
