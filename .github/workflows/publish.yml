@@ -1,8 +1,9 @@
 name: Publish NuGet
 
 on:
-  release:
-    types: [ published ]
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -19,28 +20,40 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: "9.0.x"
 
-      - name: Resolve package version
+      - name: Determine version
         id: version
         shell: bash
         run: |
-          TAG='${{ github.event.release.tag_name }}'
-          VERSION="${TAG#v}"
-          if [[ "$VERSION" == "$TAG" && ! "$TAG" =~ ^[0-9] ]]; then
-            echo "Release tag must be a semantic version such as v1.0.0 or 1.0.0."
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid version tag: ${GITHUB_REF_NAME}"
             exit 1
           fi
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Restore
         run: dotnet restore src/Leap71.Semantics/Leap71.Semantics.csproj
 
       - name: Build
-        run: dotnet build src/Leap71.Semantics/Leap71.Semantics.csproj --configuration Release --no-restore /p:Version=${{ steps.version.outputs.version }}
+        run: >
+          dotnet build
+          src/Leap71.Semantics/Leap71.Semantics.csproj
+          --configuration Release
+          --no-restore
+          /p:Version=${{ steps.version.outputs.version }}
 
       - name: Pack
-        run: dotnet pack src/Leap71.Semantics/Leap71.Semantics.csproj --configuration Release --no-build --output artifacts /p:PackageVersion=${{ steps.version.outputs.version }}
+        run: >
+          dotnet pack
+          src/Leap71.Semantics/Leap71.Semantics.csproj
+          --configuration Release
+          --no-build
+          --output artifacts
+          /p:PackageVersion=${{ steps.version.outputs.version }}
 
       - name: Authenticate to NuGet.org
         uses: NuGet/login@v1
@@ -49,4 +62,9 @@ jobs:
           user: ${{ vars.NUGET_USER }}
 
       - name: Publish
-        run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: >
+          dotnet nuget push
+          "artifacts/*.nupkg"
+          --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
